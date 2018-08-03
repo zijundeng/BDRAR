@@ -39,7 +39,7 @@ You can directly [download](https://drive.google.com/open?id=1dnH-IHwmu9xFPlyndq
 ## Usage
 
 ### Training
-Run by ```python train.py```
+1. Run by ```python train.py```
 
 *Hyper-parameters* of training were gathered at the beginning of *train.py* and you can conveniently 
 change it as you need.
