@@ -57,43 +57,43 @@ class BDRAR(nn.Module):
             nn.Conv2d(256, 32, 1, bias=False), nn.BatchNorm2d(32), nn.ReLU()
         )
 
-        self.refine3_h2l = nn.Sequential(
+        self.refine3_hl = nn.Sequential(
             nn.Conv2d(64, 32, 1, bias=False), nn.BatchNorm2d(32), nn.ReLU(),
             nn.Conv2d(32, 32, 3, padding=1, groups=32, bias=False), nn.BatchNorm2d(32), nn.ReLU(),
             nn.Conv2d(32, 32, 1, bias=False), nn.BatchNorm2d(32)
         )
-        self.refine2_h2l = nn.Sequential(
+        self.refine2_hl = nn.Sequential(
             nn.Conv2d(64, 32, 1, bias=False), nn.BatchNorm2d(32), nn.ReLU(),
             nn.Conv2d(32, 32, 3, padding=1, groups=32, bias=False), nn.BatchNorm2d(32), nn.ReLU(),
             nn.Conv2d(32, 32, 1, bias=False), nn.BatchNorm2d(32)
         )
-        self.refine1_h2l = nn.Sequential(
+        self.refine1_hl = nn.Sequential(
             nn.Conv2d(64, 32, 1, bias=False), nn.BatchNorm2d(32), nn.ReLU(),
             nn.Conv2d(32, 32, 3, padding=1, groups=32, bias=False), nn.BatchNorm2d(32), nn.ReLU(),
             nn.Conv2d(32, 32, 1, bias=False), nn.BatchNorm2d(32)
         )
-        self.attention3_h2l = _AttentionModule()
-        self.attention2_h2l = _AttentionModule()
-        self.attention1_h2l = _AttentionModule()
+        self.attention3_hl = _AttentionModule()
+        self.attention2_hl = _AttentionModule()
+        self.attention1_hl = _AttentionModule()
 
-        self.refine2_l2h = nn.Sequential(
+        self.refine2_lh = nn.Sequential(
             nn.Conv2d(64, 32, 1, bias=False), nn.BatchNorm2d(32), nn.ReLU(),
             nn.Conv2d(32, 32, 3, padding=1, groups=32, bias=False), nn.BatchNorm2d(32), nn.ReLU(),
             nn.Conv2d(32, 32, 1, bias=False), nn.BatchNorm2d(32)
         )
-        self.refine4_l2h = nn.Sequential(
+        self.refine4_lh = nn.Sequential(
             nn.Conv2d(64, 32, 1, bias=False), nn.BatchNorm2d(32), nn.ReLU(),
             nn.Conv2d(32, 32, 3, padding=1, groups=32, bias=False), nn.BatchNorm2d(32), nn.ReLU(),
             nn.Conv2d(32, 32, 1, bias=False), nn.BatchNorm2d(32)
         )
-        self.refine3_l2h = nn.Sequential(
+        self.refine3_lh = nn.Sequential(
             nn.Conv2d(64, 32, 1, bias=False), nn.BatchNorm2d(32), nn.ReLU(),
             nn.Conv2d(32, 32, 3, padding=1, groups=32, bias=False), nn.BatchNorm2d(32), nn.ReLU(),
             nn.Conv2d(32, 32, 1, bias=False), nn.BatchNorm2d(32)
         )
-        self.attention2_l2h = _AttentionModule()
-        self.attention3_l2h = _AttentionModule()
-        self.attention4_l2h = _AttentionModule()
+        self.attention2_lh = _AttentionModule()
+        self.attention3_lh = _AttentionModule()
+        self.attention4_lh = _AttentionModule()
 
         self.fuse_attention = nn.Sequential(
             nn.Conv2d(64, 16, 3, padding=1, bias=False), nn.BatchNorm2d(16), nn.ReLU(),
@@ -122,65 +122,65 @@ class BDRAR(nn.Module):
         down1 = self.down1(layer1)
 
         down4 = F.upsample(down4, size=down3.size()[2:], mode='bilinear')
-        refine3_h2l_0 = F.relu(self.refine3_h2l(torch.cat((down4, down3), 1)) + down4, True)
-        refine3_h2l_0 = (1 + self.attention3_h2l(torch.cat((down4, down3), 1))) * refine3_h2l_0
-        refine3_h2l_1 = F.relu(self.refine3_h2l(torch.cat((refine3_h2l_0, down3), 1)) + refine3_h2l_0, True)
-        refine3_h2l_1 = (1 + self.attention3_h2l(torch.cat((refine3_h2l_0, down3), 1))) * refine3_h2l_1
+        refine3_hl_0 = F.relu(self.refine3_hl(torch.cat((down4, down3), 1)) + down4, True)
+        refine3_hl_0 = (1 + self.attention3_hl(torch.cat((down4, down3), 1))) * refine3_hl_0
+        refine3_hl_1 = F.relu(self.refine3_hl(torch.cat((refine3_hl_0, down3), 1)) + refine3_hl_0, True)
+        refine3_hl_1 = (1 + self.attention3_hl(torch.cat((refine3_hl_0, down3), 1))) * refine3_hl_1
 
-        refine3_h2l_1 = F.upsample(refine3_h2l_1, size=down2.size()[2:], mode='bilinear')
-        refine2_h2l_0 = F.relu(self.refine2_h2l(torch.cat((refine3_h2l_1, down2), 1)) + refine3_h2l_1, True)
-        refine2_h2l_0 = (1 + self.attention2_h2l(torch.cat((refine3_h2l_1, down2), 1))) * refine2_h2l_0
-        refine2_h2l_1 = F.relu(self.refine2_h2l(torch.cat((refine2_h2l_0, down2), 1)) + refine2_h2l_0, True)
-        refine2_h2l_1 = (1 + self.attention2_h2l(torch.cat((refine2_h2l_0, down2), 1))) * refine2_h2l_1
+        refine3_hl_1 = F.upsample(refine3_hl_1, size=down2.size()[2:], mode='bilinear')
+        refine2_hl_0 = F.relu(self.refine2_hl(torch.cat((refine3_hl_1, down2), 1)) + refine3_hl_1, True)
+        refine2_hl_0 = (1 + self.attention2_hl(torch.cat((refine3_hl_1, down2), 1))) * refine2_hl_0
+        refine2_hl_1 = F.relu(self.refine2_hl(torch.cat((refine2_hl_0, down2), 1)) + refine2_hl_0, True)
+        refine2_hl_1 = (1 + self.attention2_hl(torch.cat((refine2_hl_0, down2), 1))) * refine2_hl_1
 
-        refine2_h2l_1 = F.upsample(refine2_h2l_1, size=down1.size()[2:], mode='bilinear')
-        refine1_h2l_0 = F.relu(self.refine1_h2l(torch.cat((refine2_h2l_1, down1), 1)) + refine2_h2l_1, True)
-        refine1_h2l_0 = (1 + self.attention1_h2l(torch.cat((refine2_h2l_1, down1), 1))) * refine1_h2l_0
-        refine1_h2l_1 = F.relu(self.refine1_h2l(torch.cat((refine1_h2l_0, down1), 1)) + refine1_h2l_0, True)
-        refine1_h2l_1 = (1 + self.attention1_h2l(torch.cat((refine1_h2l_0, down1), 1))) * refine1_h2l_1
+        refine2_hl_1 = F.upsample(refine2_hl_1, size=down1.size()[2:], mode='bilinear')
+        refine1_hl_0 = F.relu(self.refine1_hl(torch.cat((refine2_hl_1, down1), 1)) + refine2_hl_1, True)
+        refine1_hl_0 = (1 + self.attention1_hl(torch.cat((refine2_hl_1, down1), 1))) * refine1_hl_0
+        refine1_hl_1 = F.relu(self.refine1_hl(torch.cat((refine1_hl_0, down1), 1)) + refine1_hl_0, True)
+        refine1_hl_1 = (1 + self.attention1_hl(torch.cat((refine1_hl_0, down1), 1))) * refine1_hl_1
 
         down2 = F.upsample(down2, size=down1.size()[2:], mode='bilinear')
-        refine2_l2h_0 = F.relu(self.refine2_l2h(torch.cat((down1, down2), 1)) + down1, True)
-        refine2_l2h_0 = (1 + self.attention2_l2h(torch.cat((down1, down2), 1))) * refine2_l2h_0
-        refine2_l2h_1 = F.relu(self.refine2_l2h(torch.cat((refine2_l2h_0, down2), 1)) + refine2_l2h_0, True)
-        refine2_l2h_1 = (1 + self.attention2_l2h(torch.cat((refine2_l2h_0, down2), 1))) * refine2_l2h_1
+        refine2_lh_0 = F.relu(self.refine2_lh(torch.cat((down1, down2), 1)) + down1, True)
+        refine2_lh_0 = (1 + self.attention2_lh(torch.cat((down1, down2), 1))) * refine2_lh_0
+        refine2_lh_1 = F.relu(self.refine2_lh(torch.cat((refine2_lh_0, down2), 1)) + refine2_lh_0, True)
+        refine2_lh_1 = (1 + self.attention2_lh(torch.cat((refine2_lh_0, down2), 1))) * refine2_lh_1
 
         down3 = F.upsample(down3, size=down1.size()[2:], mode='bilinear')
-        refine3_l2h_0 = F.relu(self.refine3_l2h(torch.cat((refine2_l2h_1, down3), 1)) + refine2_l2h_1, True)
-        refine3_l2h_0 = (1 + self.attention3_l2h(torch.cat((refine2_l2h_1, down3), 1))) * refine3_l2h_0
-        refine3_l2h_1 = F.relu(self.refine3_l2h(torch.cat((refine3_l2h_0, down3), 1)) + refine3_l2h_0, True)
-        refine3_l2h_1 = (1 + self.attention3_l2h(torch.cat((refine3_l2h_0, down3), 1))) * refine3_l2h_1
+        refine3_lh_0 = F.relu(self.refine3_lh(torch.cat((refine2_lh_1, down3), 1)) + refine2_lh_1, True)
+        refine3_lh_0 = (1 + self.attention3_lh(torch.cat((refine2_lh_1, down3), 1))) * refine3_lh_0
+        refine3_lh_1 = F.relu(self.refine3_lh(torch.cat((refine3_lh_0, down3), 1)) + refine3_lh_0, True)
+        refine3_lh_1 = (1 + self.attention3_lh(torch.cat((refine3_lh_0, down3), 1))) * refine3_lh_1
 
         down4 = F.upsample(down4, size=down1.size()[2:], mode='bilinear')
-        refine4_l2h_0 = F.relu(self.refine4_l2h(torch.cat((refine3_l2h_1, down4), 1)) + refine3_l2h_1, True)
-        refine4_l2h_0 = (1 + self.attention4_l2h(torch.cat((refine3_l2h_1, down4), 1))) * refine4_l2h_0
-        refine4_l2h_1 = F.relu(self.refine4_l2h(torch.cat((refine4_l2h_0, down4), 1)) + refine4_l2h_0, True)
-        refine4_l2h_1 = (1 + self.attention4_l2h(torch.cat((refine4_l2h_0, down4), 1))) * refine4_l2h_1
+        refine4_lh_0 = F.relu(self.refine4_lh(torch.cat((refine3_lh_1, down4), 1)) + refine3_lh_1, True)
+        refine4_lh_0 = (1 + self.attention4_lh(torch.cat((refine3_lh_1, down4), 1))) * refine4_lh_0
+        refine4_lh_1 = F.relu(self.refine4_lh(torch.cat((refine4_lh_0, down4), 1)) + refine4_lh_0, True)
+        refine4_lh_1 = (1 + self.attention4_lh(torch.cat((refine4_lh_0, down4), 1))) * refine4_lh_1
 
-        refine3_h2l_1 = F.upsample(refine3_h2l_1, size=down1.size()[2:], mode='bilinear')
-        predict4_h2l = self.predict(down4)
-        predict3_h2l = self.predict(refine3_h2l_1)
-        predict2_h2l = self.predict(refine2_h2l_1)
-        predict1_h2l = self.predict(refine1_h2l_1)
+        refine3_hl_1 = F.upsample(refine3_hl_1, size=down1.size()[2:], mode='bilinear')
+        predict4_hl = self.predict(down4)
+        predict3_hl = self.predict(refine3_hl_1)
+        predict2_hl = self.predict(refine2_hl_1)
+        predict1_hl = self.predict(refine1_hl_1)
 
-        predict1_l2h = self.predict(down1)
-        predict2_l2h = self.predict(refine2_l2h_1)
-        predict3_l2h = self.predict(refine3_l2h_1)
-        predict4_l2h = self.predict(refine4_l2h_1)
+        predict1_lh = self.predict(down1)
+        predict2_lh = self.predict(refine2_lh_1)
+        predict3_lh = self.predict(refine3_lh_1)
+        predict4_lh = self.predict(refine4_lh_1)
 
-        fuse_attention = F.sigmoid(self.fuse_attention(torch.cat((refine1_h2l_1, refine4_l2h_1), 1)))
-        fuse_predict = torch.sum(fuse_attention * torch.cat((predict1_h2l, predict4_l2h), 1), 1, True)
+        fuse_attention = F.sigmoid(self.fuse_attention(torch.cat((refine1_hl_1, refine4_lh_1), 1)))
+        fuse_predict = torch.sum(fuse_attention * torch.cat((predict1_hl, predict4_lh), 1), 1, True)
 
-        predict4_h2l = F.upsample(predict4_h2l, size=x.size()[2:], mode='bilinear')
-        predict3_h2l = F.upsample(predict3_h2l, size=x.size()[2:], mode='bilinear')
-        predict2_h2l = F.upsample(predict2_h2l, size=x.size()[2:], mode='bilinear')
-        predict1_h2l = F.upsample(predict1_h2l, size=x.size()[2:], mode='bilinear')
-        predict1_l2h = F.upsample(predict1_l2h, size=x.size()[2:], mode='bilinear')
-        predict2_l2h = F.upsample(predict2_l2h, size=x.size()[2:], mode='bilinear')
-        predict3_l2h = F.upsample(predict3_l2h, size=x.size()[2:], mode='bilinear')
-        predict4_l2h = F.upsample(predict4_l2h, size=x.size()[2:], mode='bilinear')
+        predict4_hl = F.upsample(predict4_hl, size=x.size()[2:], mode='bilinear')
+        predict3_hl = F.upsample(predict3_hl, size=x.size()[2:], mode='bilinear')
+        predict2_hl = F.upsample(predict2_hl, size=x.size()[2:], mode='bilinear')
+        predict1_hl = F.upsample(predict1_hl, size=x.size()[2:], mode='bilinear')
+        predict1_lh = F.upsample(predict1_lh, size=x.size()[2:], mode='bilinear')
+        predict2_lh = F.upsample(predict2_lh, size=x.size()[2:], mode='bilinear')
+        predict3_lh = F.upsample(predict3_lh, size=x.size()[2:], mode='bilinear')
+        predict4_lh = F.upsample(predict4_lh, size=x.size()[2:], mode='bilinear')
         fuse_predict = F.upsample(fuse_predict, size=x.size()[2:], mode='bilinear')
 
         if self.training:
-            return fuse_predict, predict1_h2l, predict2_h2l, predict3_h2l, predict4_h2l, predict1_l2h, predict2_l2h, predict3_l2h, predict4_l2h
+            return fuse_predict, predict1_hl, predict2_hl, predict3_hl, predict4_hl, predict1_lh, predict2_lh, predict3_lh, predict4_lh
         return F.sigmoid(fuse_predict)
